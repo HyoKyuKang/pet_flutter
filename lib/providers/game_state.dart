@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/pet.dart';
 import '../models/upgrade.dart';
 import '../utils/constants.dart';
+import '../utils/save_manager.dart';
 
 class GameState {
   final Pet pet;
@@ -69,6 +70,13 @@ final _initialUpgrades = [
   ),
 ];
 
+/// SaveManager를 Provider로 관리하여 GameNotifier에서 접근할 수 있도록 한다.
+final saveManagerProvider = Provider<SaveManager>((ref) {
+  throw UnimplementedError(
+    'saveManagerProvider must be overridden with a real SaveManager instance.',
+  );
+});
+
 class GameNotifier extends Notifier<GameState> {
   Timer? _autoIncomeTimer;
 
@@ -76,6 +84,17 @@ class GameNotifier extends Notifier<GameState> {
   GameState build() {
     _startAutoIncome();
     ref.onDispose(() => _autoIncomeTimer?.cancel());
+
+    final saveManager = ref.read(saveManagerProvider);
+    if (saveManager.hasSaveData()) {
+      final savedCoins = saveManager.loadCoins() ?? 0.0;
+      final savedUpgrades = saveManager.loadUpgrades(_initialUpgrades);
+      return GameState(
+        pet: Pet.initial('코코'),
+        coins: savedCoins,
+        upgrades: savedUpgrades,
+      );
+    }
 
     return GameState(
       pet: Pet.initial('코코'),
@@ -98,6 +117,7 @@ class GameNotifier extends Notifier<GameState> {
 
   void tap() {
     state = state.copyWith(coins: state.coins + state.coinsPerTap);
+    _save();
   }
 
   bool buyUpgrade(String upgradeId) {
@@ -114,7 +134,16 @@ class GameNotifier extends Notifier<GameState> {
       coins: state.coins - upgrade.currentCost,
       upgrades: updatedUpgrades,
     );
+    _save();
     return true;
+  }
+
+  /// 현재 상태를 SharedPreferences에 저장한다.
+  void _save() {
+    ref.read(saveManagerProvider).save(
+      coins: state.coins,
+      upgrades: state.upgrades,
+    );
   }
 }
 

@@ -46,3 +46,32 @@ lib/
 - 코드베이스 전체 검색 → 반드시 에이전트에 위임 (컨텍스트 보호)
 - 구현과 무관한 정보 조사(라이브러리, 문서 등) → general-purpose 에이전트
 - 단순 파일 1~2개 읽기/수정 → 직접 처리
+
+## 기능 개발 워크플로우
+새 기능, 여러 파일 수정이 필요한 큰 작업은 아래 순서로 에이전트를 직접 호출한다.
+오케스트레이터 에이전트에 위임하지 않고, 내(Claude)가 직접 각 단계를 순서대로 호출한다.
+
+1. **flutter-architect** 호출 → 설계안을 `_workspace/architecture-plan.md`에 저장
+2. **flutter-implementer** 호출 → `_workspace/architecture-plan.md` 읽고 코드 구현
+3. **flutter-reviewer** 호출 → 구현 결과 검증 및 `flutter analyze` 통과 확인
+
+각 단계가 완료되면 `_workspace/workflow-log.md`에 아래 형식으로 기록한다:
+```
+## {날짜} {작업명}
+| 단계 | 에이전트 | 상태 | 산출물 |
+|------|----------|------|--------|
+| 설계 | flutter-architect | ✅/❌ | 파일명 |
+| 구현 | flutter-implementer | ✅/❌ | 변경 파일 목록 |
+| 검증 | flutter-reviewer | ✅/❌ | analyze 결과 |
+```
+
+## 작업 완료 보고
+모든 작업이 끝나면 반드시 아래 형식으로 사용자에게 보고한다:
+
+**직접 처리한 경우:**
+> 처리 방식: 직접 처리 / 변경 파일: xxx.dart 외 N개 / flutter analyze: ✅
+
+**에이전트 파이프라인을 사용한 경우:**
+> 처리 방식: 에이전트 파이프라인 (architect → implementer → reviewer)
+> 각 단계 결과: 설계 ✅ / 구현 ✅ / 검증 ✅
+> 변경 파일: xxx.dart 외 N개 / flutter analyze: ✅

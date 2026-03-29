@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'providers/game_state.dart';
 import 'screens/main_screen.dart';
+import 'utils/save_manager.dart';
 
-void main() {
-  runApp(const ProviderScope(child: MyApp()));
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final saveManager = await SaveManager.create();
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        saveManagerProvider.overrideWithValue(saveManager),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
