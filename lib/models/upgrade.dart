@@ -1,4 +1,6 @@
-enum UpgradeCategory { food, toy, house }
+import '../utils/constants.dart';
+
+enum UpgradeCategory { memory, emotion, language, reasoning, creativity }
 
 class Upgrade {
   final String id;
@@ -31,5 +33,17 @@ class Upgrade {
     );
   }
 
-  double get currentCost => cost * (count + 1);
+  /// 업그레이드 가격: 기본 비용 * 1.5^count (복리 증가)
+  double get currentCost {
+    if (count == 0) return cost;
+    return cost * _pow(kUpgradeCostMultiplier, count);
+  }
+
+  static double _pow(double base, int exponent) {
+    double result = 1.0;
+    for (int i = 0; i < exponent; i++) {
+      result *= base;
+    }
+    return result;
+  }
 }

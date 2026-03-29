@@ -10,12 +10,16 @@ class UpgradeCard extends ConsumerWidget {
 
   IconData _icon() {
     switch (upgrade.category) {
-      case UpgradeCategory.food:
-        return Icons.restaurant;
-      case UpgradeCategory.toy:
-        return Icons.toys;
-      case UpgradeCategory.house:
-        return Icons.home;
+      case UpgradeCategory.memory:
+        return Icons.memory;
+      case UpgradeCategory.emotion:
+        return Icons.favorite;
+      case UpgradeCategory.language:
+        return Icons.translate;
+      case UpgradeCategory.reasoning:
+        return Icons.psychology;
+      case UpgradeCategory.creativity:
+        return Icons.auto_awesome;
     }
   }
 
